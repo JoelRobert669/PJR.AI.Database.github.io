@@ -61,7 +61,7 @@
     /* Table styling */
     table {
       width: 100%;
-      min-width: 800px;  /* Ensures proper layout on smaller screens */
+      min-width: 800px;
       border-collapse: collapse;
       background-color: #fff;
       border-radius: 12px;
@@ -86,7 +86,7 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    /* Link styles */
+    /* Clickable link styling */
     a {
       color: #3498db;
       text-decoration: none;
@@ -96,7 +96,7 @@
       color: #2980b9;
       text-decoration: underline;
     }
-    /* Responsive table for mobile using block display */
+    /* Responsive table: stack columns on small screens */
     @media screen and (max-width: 768px) {
       table {
         min-width: 100%;
@@ -130,14 +130,14 @@
       }
     }
   </style>
-  <!-- Include PapaParse library for CSV parsing -->
+  <!-- Include PapaParse for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
   <h1>PJR AI Content Creation Tools Database</h1>
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search tools..." onkeyup="filterTable()">
-    <button onclick="filterTable()">Search</button>
+    <input type="text" id="searchInput" placeholder="Search tools...">
+    <button id="searchButton">Search</button>
   </div>
   <div class="table-container">
     <table id="toolTable">
@@ -168,19 +168,25 @@
       const filter = input.value.toUpperCase();
       const table = document.getElementById("toolTable");
       const tr = table.getElementsByTagName("tr");
+      
       for (let i = 1; i < tr.length; i++) {
         let rowText = tr[i].textContent || tr[i].innerText;
         tr[i].style.display = rowText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
       }
     }
     
-    // Populate the table with data from CSV
+    // Add event listeners for input search (works for mobile and desktop)
+    document.getElementById("searchInput").addEventListener("input", filterTable);
+    document.getElementById("searchButton").addEventListener("click", filterTable);
+    
+    // Function to populate the table with CSV data
     function populateTable(data) {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
+      const headers = ["Tool Name", "Category", "Description", "Key Features", "Pricing Model", "Website URL", "Emotion Convey", "Physics Accurate", "Cinematic Control", "Additional Tags"];
+      
       data.forEach(row => {
         let tr = document.createElement("tr");
-        const headers = ["Tool Name", "Category", "Description", "Key Features", "Pricing Model", "Website URL", "Emotion Convey", "Physics Accurate", "Cinematic Control", "Additional Tags"];
         let columns = [
           row["Tool Name"],
           row["Category"],
@@ -211,7 +217,7 @@
       });
     }
     
-    // Load CSV data using PapaParse
+    // Function to load CSV data using PapaParse
     function loadCSVData(url) {
       Papa.parse(url, {
         download: true,
@@ -225,7 +231,7 @@
       });
     }
     
-    // Inline CSV as a fallback (update as needed)
+    // Inline CSV as a fallback (update with full data if needed)
     const inlineCSV = `Tool Name,Category,Description,Key Features,Pricing Model,Website URL,Emotion Convey,Physics Accurate,Cinematic Control,Additional Tags
 Kling AI,Video Creation & Editing,"Advanced text-to-video and image-to-video generator with dual-mode flexibility and fast rendering (2–5 minutes).","Lightning-fast generation; Dual-mode (Standard & Professional); Custom duration options; Intuitive interface","Free tokens available; Paid subscription plans",https://kling.kuaishou.com,Moderate,Moderate,Yes,"Artistic, high-fidelity, fast generation, social media"
 Hailuo AI,Video Creation & Editing,"Cinematic AI video generator delivering high-resolution clips with intelligent cropping and multilingual support.","High-resolution outputs; Intelligent cropping; Multiple caption styles; Subject reference feature",Subscription-based,https://hailuoai.video,High,High,Yes,"Cinematic, HD, professional"
