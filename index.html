@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Modern CSS styling -->
   <style>
-    /* Base and reset styles */
+    /* Base styles */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
@@ -19,13 +19,14 @@
       color: #2c3e50;
       margin-bottom: 20px;
     }
-    /* Search box styling */
+    /* Search container styles */
     .search-container {
       text-align: center;
       margin-bottom: 20px;
     }
     .search-container input[type="text"] {
-      width: 300px;
+      width: 80%;
+      max-width: 300px;
       padding: 10px;
       font-size: 16px;
       border: 2px solid #2c3e50;
@@ -52,9 +53,15 @@
       background-color: #2980b9;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
+    /* Container for horizontal scroll on mobile */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
     /* Table styling */
     table {
       width: 100%;
+      min-width: 800px;  /* Ensures proper layout on smaller screens */
       border-collapse: collapse;
       background-color: #fff;
       border-radius: 12px;
@@ -79,7 +86,7 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    /* Style for clickable links */
+    /* Link styles */
     a {
       color: #3498db;
       text-decoration: none;
@@ -89,103 +96,91 @@
       color: #2980b9;
       text-decoration: underline;
     }
-    /* Responsive table styles */
+    /* Responsive table for mobile using block display */
     @media screen and (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
+      table {
+        min-width: 100%;
       }
       thead tr {
         position: absolute;
         top: -9999px;
         left: -9999px;
       }
-      tr { margin: 0 0 1rem 0; }
+      tr {
+        display: block;
+        margin-bottom: 1rem;
+      }
       td {
-        border: none;
+        display: block;
+        text-align: right;
         position: relative;
         padding-left: 50%;
         white-space: pre-wrap;
       }
       td:before {
+        content: attr(data-label);
         position: absolute;
-        top: 12px;
         left: 15px;
         width: 45%;
         padding-right: 10px;
         white-space: nowrap;
         font-weight: bold;
         text-transform: uppercase;
+        text-align: left;
       }
-      td:nth-of-type(1):before { content: "Tool Name"; }
-      td:nth-of-type(2):before { content: "Category"; }
-      td:nth-of-type(3):before { content: "Description"; }
-      td:nth-of-type(4):before { content: "Key Features"; }
-      td:nth-of-type(5):before { content: "Pricing Model"; }
-      td:nth-of-type(6):before { content: "Website URL"; }
-      td:nth-of-type(7):before { content: "Emotion Convey"; }
-      td:nth-of-type(8):before { content: "Physics Accurate"; }
-      td:nth-of-type(9):before { content: "Cinematic Control"; }
-      td:nth-of-type(10):before { content: "Additional Tags"; }
     }
   </style>
-  <!-- Include PapaParse for CSV parsing -->
+  <!-- Include PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
 <body>
-  <h1>AI Content Creation Tools Database</h1>
+  <h1>PJR AI Content Creation Tools Database</h1>
   <div class="search-container">
     <input type="text" id="searchInput" placeholder="Search tools..." onkeyup="filterTable()">
     <button onclick="filterTable()">Search</button>
   </div>
-  
-  <!-- Table where data will be populated -->
-  <table id="toolTable">
-    <thead>
-      <tr>
-        <th>Tool Name</th>
-        <th>Category</th>
-        <th>Description</th>
-        <th>Key Features</th>
-        <th>Pricing Model</th>
-        <th>Website URL</th>
-        <th>Emotion Convey</th>
-        <th>Physics Accurate</th>
-        <th>Cinematic Control</th>
-        <th>Additional Tags</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <!-- Data rows will be injected here -->
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table id="toolTable">
+      <thead>
+        <tr>
+          <th>Tool Name</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Key Features</th>
+          <th>Pricing Model</th>
+          <th>Website URL</th>
+          <th>Emotion Convey</th>
+          <th>Physics Accurate</th>
+          <th>Cinematic Control</th>
+          <th>Additional Tags</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data rows will be injected here -->
+      </tbody>
+    </table>
+  </div>
   
   <script>
-    // Function to filter table rows based on search input
+    // Filter table rows based on search input
     function filterTable() {
       const input = document.getElementById("searchInput");
       const filter = input.value.toUpperCase();
       const table = document.getElementById("toolTable");
       const tr = table.getElementsByTagName("tr");
-      
-      // Loop through all table rows, excluding header row (index 0)
       for (let i = 1; i < tr.length; i++) {
         let rowText = tr[i].textContent || tr[i].innerText;
-        if (rowText.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
-        }
+        tr[i].style.display = rowText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
       }
     }
     
-    // Function to populate the table with data from the Google Sheets CSV
+    // Populate the table with data from CSV
     function populateTable(data) {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
-      
       data.forEach(row => {
         let tr = document.createElement("tr");
-        // Define columns in the desired order
+        const headers = ["Tool Name", "Category", "Description", "Key Features", "Pricing Model", "Website URL", "Emotion Convey", "Physics Accurate", "Cinematic Control", "Additional Tags"];
         let columns = [
           row["Tool Name"],
           row["Category"],
@@ -200,7 +195,7 @@
         ];
         columns.forEach((colText, index) => {
           let td = document.createElement("td");
-          // For the "Website URL" column (index 5), create a clickable link
+          td.setAttribute("data-label", headers[index]);
           if (index === 5 && colText) {
             let a = document.createElement("a");
             a.href = colText;
@@ -216,11 +211,9 @@
       });
     }
     
-    // Fetch CSV data from the Google Sheet on DOM load
-    document.addEventListener("DOMContentLoaded", function() {
-      const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJpMjJDAC-wSYxyvNoR7BTNvUkMn8bBzxNAWXk9xwxLEJAQxtCZ8z2MVLX6zcP2KU4jRw6-a8u_Epe/pub?output=csv";
-      
-      Papa.parse(sheetUrl, {
+    // Load CSV data using PapaParse
+    function loadCSVData(url) {
+      Papa.parse(url, {
         download: true,
         header: true,
         complete: function(results) {
@@ -230,6 +223,26 @@
           console.error("Error parsing CSV:", err);
         }
       });
+    }
+    
+    // Inline CSV as a fallback (update as needed)
+    const inlineCSV = `Tool Name,Category,Description,Key Features,Pricing Model,Website URL,Emotion Convey,Physics Accurate,Cinematic Control,Additional Tags
+Kling AI,Video Creation & Editing,"Advanced text-to-video and image-to-video generator with dual-mode flexibility and fast rendering (2–5 minutes).","Lightning-fast generation; Dual-mode (Standard & Professional); Custom duration options; Intuitive interface","Free tokens available; Paid subscription plans",https://kling.kuaishou.com,Moderate,Moderate,Yes,"Artistic, high-fidelity, fast generation, social media"
+Hailuo AI,Video Creation & Editing,"Cinematic AI video generator delivering high-resolution clips with intelligent cropping and multilingual support.","High-resolution outputs; Intelligent cropping; Multiple caption styles; Subject reference feature",Subscription-based,https://hailuoai.video,High,High,Yes,"Cinematic, HD, professional"
+RunwayML (Gen‑2/Gen‑3 Alpha),Video Creation & Editing,"Multimodal platform offering text-to-video, video-to-video, and advanced editing tools for professional projects.","Up to 4K output; Text-to-video; Motion brush; Keyframes; Inpainting; Real-time collaboration","Free tier; Pro from ~$35/month; Enterprise options",https://runwayml.com,Moderate,Moderate,Advanced,"Multimodal, professional, collaborative"`;
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.location.protocol === "file:") {
+        Papa.parse(inlineCSV, {
+          header: true,
+          complete: function(results) {
+            populateTable(results.data);
+          }
+        });
+      } else {
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJpMjJDAC-wSYxyvNoR7BTNvUkMn8bBzxNAWXk9xwxLEJAQxtCZ8z2MVLX6zcP2KU4jRw6-a8u_Epe/pub?output=csv";
+        loadCSVData(sheetUrl);
+      }
     });
   </script>
 </body>
