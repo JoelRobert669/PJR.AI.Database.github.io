@@ -80,11 +80,15 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
+    /* More contrast between rows */
+    tr:nth-child(odd) {
+      background-color: #ffffff;
+    }
     tr:nth-child(even) {
-      background-color: #f9f9f9;
+      background-color: #f0f0f0;
     }
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #e0e0e0;
     }
     /* Clickable link styling */
     a {
@@ -168,7 +172,6 @@
       const filter = input.value.toUpperCase();
       const table = document.getElementById("toolTable");
       const tr = table.getElementsByTagName("tr");
-      
       for (let i = 1; i < tr.length; i++) {
         let rowText = tr[i].textContent || tr[i].innerText;
         tr[i].style.display = rowText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
@@ -179,12 +182,11 @@
     document.getElementById("searchInput").addEventListener("input", filterTable);
     document.getElementById("searchButton").addEventListener("click", filterTable);
     
-    // Function to populate the table with CSV data
+    // Populate the table with CSV data
     function populateTable(data) {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = "";
       const headers = ["Tool Name", "Category", "Description", "Key Features", "Pricing Model", "Website URL", "Emotion Convey", "Physics Accurate", "Cinematic Control", "Additional Tags"];
-      
       data.forEach(row => {
         let tr = document.createElement("tr");
         let columns = [
