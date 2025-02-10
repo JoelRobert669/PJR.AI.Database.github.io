@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PJR AI Content Creation Tools Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Modern CSS styling -->
+  <style>
+    /* Base and reset styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: #333;
+      margin: 20px;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    /* Search box styling */
+    .search-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-container input[type="text"] {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #2c3e50;
+      border-radius: 20px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .search-container input[type="text"]:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+    }
+    .search-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+      border: none;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    .search-container button:hover {
+      background-color: #2980b9;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e1e1e1;
+      font-size: 14px;
+    }
+    th {
+      background-color: #3498db;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    /* Style for clickable links */
+    a {
+      color: #3498db;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: #2980b9;
+      text-decoration: underline;
+    }
+    /* Responsive table styles */
+    @media screen and (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      tr { margin: 0 0 1rem 0; }
+      td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        white-space: pre-wrap;
+      }
+      td:before {
+        position: absolute;
+        top: 12px;
+        left: 15px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      td:nth-of-type(1):before { content: "Tool Name"; }
+      td:nth-of-type(2):before { content: "Category"; }
+      td:nth-of-type(3):before { content: "Description"; }
+      td:nth-of-type(4):before { content: "Key Features"; }
+      td:nth-of-type(5):before { content: "Pricing Model"; }
+      td:nth-of-type(6):before { content: "Website URL"; }
+      td:nth-of-type(7):before { content: "Emotion Convey"; }
+      td:nth-of-type(8):before { content: "Physics Accurate"; }
+      td:nth-of-type(9):before { content: "Cinematic Control"; }
+      td:nth-of-type(10):before { content: "Additional Tags"; }
+    }
+  </style>
+  <!-- Include PapaParse for CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+  <h1>AI Content Creation Tools Database</h1>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search tools..." onkeyup="filterTable()">
+    <button onclick="filterTable()">Search</button>
+  </div>
+  
+  <!-- Table where data will be populated -->
+  <table id="toolTable">
+    <thead>
+      <tr>
+        <th>Tool Name</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Key Features</th>
+        <th>Pricing Model</th>
+        <th>Website URL</th>
+        <th>Emotion Convey</th>
+        <th>Physics Accurate</th>
+        <th>Cinematic Control</th>
+        <th>Additional Tags</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <!-- Data rows will be injected here -->
+    </tbody>
+  </table>
+  
+  <script>
+    // Function to filter table rows based on search input
+    function filterTable() {
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toUpperCase();
+      const table = document.getElementById("toolTable");
+      const tr = table.getElementsByTagName("tr");
+      
+      // Loop through all table rows, excluding header row (index 0)
+      for (let i = 1; i < tr.length; i++) {
+        let rowText = tr[i].textContent || tr[i].innerText;
+        if (rowText.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+    
+    // Function to populate the table with data from the Google Sheets CSV
+    function populateTable(data) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+      
+      data.forEach(row => {
+        let tr = document.createElement("tr");
+        // Define columns in the desired order
+        let columns = [
+          row["Tool Name"],
+          row["Category"],
+          row["Description"],
+          row["Key Features"],
+          row["Pricing Model"],
+          row["Website URL"],
+          row["Emotion Convey"],
+          row["Physics Accurate"],
+          row["Cinematic Control"],
+          row["Additional Tags"]
+        ];
+        columns.forEach((colText, index) => {
+          let td = document.createElement("td");
+          // For the "Website URL" column (index 5), create a clickable link
+          if (index === 5 && colText) {
+            let a = document.createElement("a");
+            a.href = colText;
+            a.textContent = colText;
+            a.target = "_blank";
+            td.appendChild(a);
+          } else {
+            td.textContent = colText;
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    
+    // Fetch CSV data from the Google Sheet on DOM load
+    document.addEventListener("DOMContentLoaded", function() {
+      const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJpMjJDAC-wSYxyvNoR7BTNvUkMn8bBzxNAWXk9xwxLEJAQxtCZ8z2MVLX6zcP2KU4jRw6-a8u_Epe/pub?output=csv";
+      
+      Papa.parse(sheetUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          populateTable(results.data);
+        },
+        error: function(err) {
+          console.error("Error parsing CSV:", err);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
